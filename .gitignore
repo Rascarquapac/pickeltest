@@ -1,0 +1,6 @@
+/venv/*
+/csv/*
+/pickelized/*
+__pycache__/*
+test*
+.DS_Store
