@@ -21,10 +21,11 @@ def picklize_cameras():
             raise Exception('Duplicated Rows in CyanviewDescriptor-Cameras.csv')
     except Exception as e:
         print(str(e))
-    protocols = pd.read_csv("./csv/CyanviewDescriptor-CameraProtocols.csv",usecols=["Protocol","Brand","Type","Cable","SupportURL","Message","MaxDelayToComplete","ControlCoverage","Bidrectionnal"])
+    protocols = pd.read_csv("./csv/CyanviewDescriptor-CameraProtocols.csv",usecols=["Protocol","Brand","Type","Cable","SupportURL","Message","MaxDelayToComplete","ControlCoverage","Bidirectionnal"])
     proto_df = pd.DataFrame(protocols)
     del proto_df['Brand']
     pool_df = pd.merge(cam_df, proto_df, on = ['Protocol'],how = 'left').set_index('Model')
+    pool_df.index = pool_df.index.str.upper()
     # Add missing columns
     pool_df = pool_df.assign(Selected=False)
     pool_df = pool_df.assign(Number=0)
