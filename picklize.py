@@ -6,9 +6,12 @@ import pandas as pd
 import os
 import requests
 import sys
+from pprint import pprint
 
 def picklize_cameras():
-    cameras = pd.read_csv("./csv/CyanviewDescriptor-Cameras.csv",usecols=['Model','Reference','Protocol','Brand','ManufacturerURL','Remark'])
+    cameras = pd.read_csv(
+        "./csv/CyanviewDescriptor-Cameras.csv",
+        usecols=['Model','Reference','Protocol','Brand','ManufacturerURL','Remark',"CameraLensControl"])
     cam_df  = pd.DataFrame(cameras)
     try:
         columns = cam_df.columns[cam_df.columns.duplicated(keep=False)]
@@ -21,7 +24,10 @@ def picklize_cameras():
             raise Exception('Duplicated Rows in CyanviewDescriptor-Cameras.csv')
     except Exception as e:
         print(str(e))
-    protocols = pd.read_csv("./csv/CyanviewDescriptor-CameraProtocols.csv",usecols=["Protocol","Brand","Type","Cable","SupportURL","Message","MaxDelayToComplete","ControlCoverage","Bidirectionnal"])
+    protocols = pd.read_csv(
+        "./csv/CyanviewDescriptor-CameraProtocols.csv",
+        usecols=["Protocol","Brand","Type","Cable","SupportURL","Message",
+                 "MaxDelayToComplete","ControlCoverage","Bidirectionnal"])
     proto_df = pd.DataFrame(protocols)
     del proto_df['Brand']
     pool_df = pd.merge(cam_df, proto_df, on = ['Protocol'],how = 'left').set_index('Model')
@@ -30,8 +36,13 @@ def picklize_cameras():
     pool_df = pool_df.assign(Selected=False)
     pool_df = pool_df.assign(Number=0)
     pool_df = pool_df.assign(Lens='Fixed')
-    pool_df = pool_df.assign(Network='LAN wired')
+    pool_df = pool_df.assign(Network='LAN Wired')
     pool_df = pool_df.assign(Base='Fixed')
+    pool_df = pool_df.assign(LensTypes = "Others")
+    pool_df = pool_df.assign(LensMotorization = "No motorization")	
+    pool_df = pool_df.assign(LensControlNeeds = "No needs")
+    # TODO : should assign values per camera group based on properties to get adhoc default
+
     ## To suppress ??
     #df['Model'] = df.index
     pool_df.to_csv("./picklized/Generated_CameraDetails.csv")
@@ -118,23 +129,28 @@ def picklize_constraints():
     # print(constraints_dict[('Slow Motion', 'Network')])
     # print(constraints_dict)
 
+def picklize_print(properties):
+    print("################  Options dictionnary  #########################\n")
+    pprint(properties["options"])
+    print("\n#############  Constraints dictionnary  ########################\n")
+    pprint(properties["constraints"])
+
 
 def picklize():
     getGoogleDescriptorSheets()
-    df  = picklize_cameras()
-    df.to_pickle("./picklized/cameras.pkl")
     messages = picklize_messages()
     with open('./picklized/messages.pkl', 'wb') as file:
         pickle.dump(messages, file)
     options     = picklize_options()
     constraints = picklize_constraints()
     print("Options picklized : \n",options)
-
     properties = {}
     properties["options"]     = options
     properties["constraints"] = constraints
     with open('./picklized/properties.pkl', 'wb') as file:
         pickle.dump(properties, file)
+    df  = picklize_cameras()
+    df.to_pickle("./picklized/cameras.pkl")
 
 def getGoogleDescriptorSheets():
     outDir = 'csv/'
@@ -167,8 +183,9 @@ if __name__ == "__main__":
     with open('./picklized/properties.pkl', 'rb') as file:
         properties = pickle.load(file)    
 
-    print("Properties Unpicklized:\n",properties)    
-    print("Options dictionnary:\n",properties["options"])
-    print("Constrainrs dictionnary:\n",properties["constraints"])
-
+    # print("Properties Unpicklized:\n")
+    # pprint(properties)    
+    # print("Options dictionnary:\n",properties["options"])
+    # print("Constrainrs dictionnary:\n",properties["constraints"])
+    picklize_print(properties)
     
