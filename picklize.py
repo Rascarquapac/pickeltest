@@ -11,7 +11,7 @@ from pprint import pprint
 def picklize_cameras():
     cameras = pd.read_csv(
         "./csv/CyanviewDescriptor-Cameras.csv",
-        usecols=['Model','Reference','Protocol','Brand','ManufacturerURL','Remark',"CameraLensControl"])
+        usecols=['Model','Reference','Protocol','Brand','ManufacturerURL','Remark',"CameraLensControl","LensMount"])
     cam_df  = pd.DataFrame(cameras)
     try:
         columns = cam_df.columns[cam_df.columns.duplicated(keep=False)]
@@ -39,10 +39,10 @@ def picklize_cameras():
     pool_df = pool_df.assign(Network='LAN Wired')
     pool_df = pool_df.assign(Base='Fixed')
     # Lens Properties
-    pool_df = pool_df.assign(CameraLensSpecificity  = "TBD")
-    pool_df = pool_df.assign(LensControlNeeds = "No needs")
-    pool_df = pool_df.assign(UserLensSpecificity  = "TBD")
-    pool_df = pool_df.assign(LensMotorization = "TBD")	
+    # pool_df = pool_df.assign(CameraLensSpecificity  = "TBD")
+    # pool_df = pool_df.assign(LensControlNeeds = "No needs")
+    # pool_df = pool_df.assign(UserLensSpecificity  = "TBD")
+    # pool_df = pool_df.assign(LensMotorization = "TBD")	
     # TODO : should assign values per camera group based on properties to get adhoc default
 
     ## To suppress ??
